@@ -30,27 +30,25 @@ genres = ['Romance', 'Comedy', 'Horror']
 movie_dic = {'Romance':['Me Before You', 'Titanic', 'About Time'], 'Comedy':['The Dictator', 'The Gold Rush', 'Four Weddings and a Funeral'], 'Horror':['Silent Hill', 'Saw', 'The Shining']}
 slots = ['9:00 - 11:00','13:00 - 15:00','20:00 - 22:00']
 
+#create Movie
 for genre_name in genres:
     movies = movie_dic.get(genre_name)
     for movie_name in movies:
         params = (movie_name, genre_name)
-        print(params)
-        cur.execute('INSERT INTO Movie (name, genre) values (?, ?)',params)
-        
+        # print(params)
+        cur.execute('INSERT INTO Movie (name, genre) values (?, ?)', (movie_name, genre_name))
 
-# cur.execute('INSERT INTO Artist (name) VALUES ('Led Zepplin')')
-# cur.execute('INSERT INTO Artist (name) VALUES ('AC/DC')')
+#create Slot
+for movie_id in range(1,10):
+    for slot in slots:
+        cur.execute('INSERT INTO Slot (movie_id, time, isFull) values (?, ?, ?)', (movie_id, slot, 0))
 
-# cur.execute('INSERT INTO Genre (name) VALUES ('Rock')')
-# cur.execute('INSERT INTO Genre (name) VALUES ('Metal')')
+# Ticket Insert on purchase
 
-# cur.execute('INSERT INTO Album (title, artist_id) values ('Who Made Who', 2)')
-# cur.execute('INSERT INTO Album (title, artist_id) values ('IV', 1)')
-
-# cur.execute('INSERT INTO Track (title, rating, len, count, album_id, genre_id) values ('Black Dog', 5, 297, 0, 2, 1)')
-# cur.execute('INSERT INTO Track (title, rating, len, count, album_id, genre_id) values ('Stairway', 5, 482, 0, 2, 1)')
-# cur.execute('INSERT INTO Track (title, rating, len, count, album_id, genre_id) values ('About to Rock', 5, 313, 0, 1, 2)')
-# cur.execute('INSERT INTO Track (title, rating, len, count, album_id, genre_id) values ('Who Made Who', 5, 207, 0, 1, 2)')
+# User Insert on sign up
+cur.execute("INSERT INTO User (email, password) values ('kwin1994@gmail.com', 'kwin1994')")
+cur.execute("INSERT INTO User (email, password) values ('katto1996@gmail.com', 'katto1996')")
+cur.execute("INSERT INTO User (email, password) values ('messi1987@gmail.com', 'messi1987')")
 
 #specify the values as question marks (?, ?)
 # to indicate that the actual values are passed in 
@@ -80,6 +78,6 @@ for genre_name in genres:
 # #After the DELETE is performed,
 # # call commit() to force the data to be removed from the database
 # cur.execute('DELETE FROM Tracks WHERE plays < 100')
-# conn.commit()
+conn.commit()
 
-# cur.close()
+cur.close()
