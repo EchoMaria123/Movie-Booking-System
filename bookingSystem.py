@@ -83,16 +83,48 @@ while True:
     else:
         print("\n Wrong time slot, please try again")
 
-
 #Return all seats available
-#User select 
-    #If the entered seat is not available, print something (this could be omitted if we assume every input is valid)
-    #Otherwise, insert a new ticket and print detailed information
-        #If SELECT count (*) from Ticket WHERE slot_id = XXXX is 9, 
-        #UPDATE Slot SET isFull = 1 WHERE id = XXXXX
+seats = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND time = ?', (movie_id, time_chosen))
+slot_id = cur.fetchone()[0]
+cur.execute('SELECT seat FROM Ticket WHERE slot_id = ?', (slot_id,))
+tickets = cur.fetchall()
+if (tickets != None):
+    for ticket in tickets:
+        seats.remove(ticket[3])
+print("\n-----------Please choose a preferred seat from below:-----------")
+for seat in seats:
+    print('\n', seat)
+while True:
+    seat_chosen = input("\n Please enter your chosen Seat: ")
+    if seat_chosen in seats:
+        break
+    else:
+        print("\n Wrong seat, please try again")
+
+# Insert a new ticket and print detailed information
+cur.execute('SELECT id FROM User WHERE email = ?', (email_input,))
+user_id = cur.fetchone()[0]
+cur.execute("INSERT INTO Ticket (price, seat, slot_id, user_id) values (?, ?, ?, ?)", (14.99, seat_chosen, time_chosen, user_id))
+print("\n-----------Below is the detailed information of the ticket you purchased:-----------")
+print("\n Movie: ", movie_chosen)
+print("\n Slot: ", time_chosen)
+print("\n Seat: ", seat_chosen)
+print("\n Price: $14.99")
+
+#Check if a slot is full
+cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
+ordered_tickets = cur.fetchall()
+if (len(ordered_tickets) == 9):
+    cur.execute('UPDATE Slot set isFull = 1 where slot_id = ?', (slot_id,))
 
 #View tickets bought
-
+# tickets_purchased = cur.execute('SELECT * FROM Ticket WHERE user_id = ?', (user_id,)).fetchall()
+# for ticket_purchased in tickets_purchased:
+#     print("\n Movie: ", )
+#     print("\n Slot: ", )
+#     print("\n Seat: ", tickets_purchased[2])
+#     print("\n Price: $14.99")
 
 
 conn.commit()
