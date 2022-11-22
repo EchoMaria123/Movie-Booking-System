@@ -3,33 +3,33 @@ import sqlite3
 conn = sqlite3.connect('cinema.sqlite')
 cur = conn.cursor()
 
-isLoggedIn = False
+is_logged_in = False
 
 #Welcome
 print("\n********************WELCOME TO LALALAND MOVIE BOOKING TICKET SYSTEM***********************")
 #Sign up / in
 print("\n Please enter your email address and password; if you don't have an account with us, we will automatically create one for you ^_^")
 
-while (isLoggedIn == False):
+while (is_logged_in == False):
 
-    emailInput = input("\nPlease enter your email address: ")
+    email_input = input("\nPlease enter your email address: ")
 
-    cur.execute('SELECT * FROM User WHERE email = ? ', (emailInput, ))
-    userFound = cur.fetchone()
+    cur.execute('SELECT * FROM User WHERE email = ? ', (email_input, ))
+    user_found = cur.fetchone()
 
     #If there's no such user, we just create a new one
-    if (userFound == None): 
+    if (user_found == None): 
         password = input("\nPlease set up your password: ")
-        cur.execute('INSERT INTO User (email, password) values (?, ?)', (emailInput, password))
-        isLoggedIn = True
+        cur.execute('INSERT INTO User (email, password) values (?, ?)', (email_input, password))
+        is_logged_in = True
         print("\n------------A new account has been created!------------")
     #If the user exists
     else:
         password = input("\nPlease enter your password:")
-        passwordFound = userFound[2]
+        password_found = user_found[2]
         #If the password is correct
-        if (password == passwordFound):
-            isLoggedIn = True
+        if (password == password_found):
+            is_logged_in = True
             print("\n-----------Logged in successfully!-----------")
         #Otherwise
         else:
@@ -70,12 +70,12 @@ cur.execute('SELECT id FROM Movie WHERE name = ? ', (movie_chosen, ))
 movie_id = cur.fetchone()[0]
 #get available slots
 cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND isFull = 0', (movie_id, ))
-slots_avail = cur.fetchall()
+slots_available = cur.fetchall()
 times = []
 print("\n-----------Please choose a preferred time slot from below:-----------")
-for slot_avail in slots_avail:
-    times.append(slot_avail[2])
-    print('\n', slot_avail[2])
+for slot_available in slots_available:
+    times.append(slot_available[2])
+    print('\n', slot_available[2])
 while True:
     time_chosen = input("\n Please enter your chosen time slot: ")
     if time_chosen in times:
