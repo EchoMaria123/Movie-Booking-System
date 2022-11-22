@@ -87,7 +87,7 @@ while True:
 seats = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND time = ?', (movie_id, time_chosen))
 slot_id = cur.fetchone()[0]
-cur.execute('SELECT seat FROM Ticket WHERE slot_id = ?', (slot_id,))
+cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
 tickets = cur.fetchall()
 if (tickets != None):
     for ticket in tickets:
@@ -119,12 +119,17 @@ if (len(ordered_tickets) == 9):
     cur.execute('UPDATE Slot set isFull = 1 where slot_id = ?', (slot_id,))
 
 #View tickets bought
-# tickets_purchased = cur.execute('SELECT * FROM Ticket WHERE user_id = ?', (user_id,)).fetchall()
-# for ticket_purchased in tickets_purchased:
-#     print("\n Movie: ", )
-#     print("\n Slot: ", )
-#     print("\n Seat: ", tickets_purchased[2])
-#     print("\n Price: $14.99")
+tickets_purchased = cur.execute('SELECT * FROM Ticket WHERE user_id = ?', (user_id,)).fetchall()
+for ticket_purchased in tickets_purchased:
+    cur.execute('SELECT * FROM Slot WHERE id = ?', (ticket_purchased[3],))
+    movie_id_purchased = cur.fetchone()[1]
+    time_purchased = cur.fetchone()[2]
+    cur.execute('SELECT name FROM Movie WHERE id = ?', (movie_id_purchased,))
+    movie_purchased = cur.fetchone()[0]
+    print("\n Movie: ", movie_purchased)
+    print("\n Slot: ", time_purchased)
+    print("\n Seat: ", ticket_purchased[2])
+    print("\n Price: $14.99")
 
 
 conn.commit()
