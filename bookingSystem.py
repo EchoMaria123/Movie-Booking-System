@@ -1,11 +1,55 @@
 import sqlite3
-import time
 import timeout_decorator
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 #global variables
-price = 14.99
-# is_logged_in = False
+PRICE = 14.99
+GENRES = ['Romance', 'Comedy', 'Horror']
+MOVIE_DIC = {'Romance':['Me Before You', 'Titanic', 'About Time'], 'Comedy':['The Dictator', 'The Gold Rush', 'Four Weddings and a Funeral'], 'Horror':['Silent Hill', 'Saw', 'The Shining']}
+TOTAL_SEATS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+CAPACITY = len(TOTAL_SEATS)
 
+#The mail addresses and password
+SENDER_ADDRESS = 'lalalandmoviebooking@gmail.com'
+SENDER_PASSWORD = 'qcxzmejemoragvav'
+EMAIL_SUBJECT = 'Congratulations! You have successfully purchased a ticket from LALALAND!'
+
+
+def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
+    mail_content = '''
+    Dear Customer, 
+    
+    Congratulations on successfully purchasing a ticket from LalaLand Movie Booking System! 
+    Below is the detailed information of your ticket:
+        
+    Movie: %s
+    Slot: %s
+    Seat: %s
+    Price: $%.2f
+
+    Thank You,
+    Lalaland Movie Booking Team
+    '''%(movie_chosen, time_chosen, seat_chosen, PRICE)
+
+    #Setup the MIME
+    message = MIMEMultipart()
+    message['From'] = SENDER_ADDRESS
+    message['To'] = receiver_address
+    message['Subject'] = EMAIL_SUBJECT   #The subject line
+
+    #The body and the attachments for the mail
+    message.attach(MIMEText(mail_content, 'plain'))
+
+    #Create SMTP session for sending the mail
+    session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
+    session.starttls() #enable security
+    session.login(SENDER_ADDRESS, SENDER_PASSWORD) #login with mail_id and password
+    text = message.as_string()
+    session.sendmail(SENDER_ADDRESS, receiver_address, text)
+    session.quit()
 
 
 @timeout_decorator.timeout(60*5)
@@ -18,7 +62,7 @@ def booking():
     while True:
 
         #Sign up / in
-        print("\n********************WELCOME TO SIGNUP/IN PAGE***********************")
+        print("\n********************WELCOME TO SIGNUP/SIGNIN PAGE***********************")
         print("\nPlease enter your email address and password; if you don't have an account with us, we will automatically create one for you ^_^")
 
         email_input = ''
@@ -60,41 +104,52 @@ def booking():
             print("\n2. VIEW PURCHASED TICKETS")
             print("\n3. LOG OUT")
             while True:
-                choice = int(input("\n"))
-                if choice in range(1, 4):
-                    break
-                else:
-                    print("\n Input not in range 1-3, please try again!")
+                try:
+                    choice = int(input("\n"))
+                    if choice in range(1, 4):
+                        break
+                    else:
+                        print("\nWrong choice, please try again")
+                except:
+                    print("\nPlease enter a number from available choices above")
 
             if choice == 1:
 
                 #Buy tickets
                 print("\n-----------Now time to book tickets!-----------")
-                    
-                genres = ['Romance', 'Comedy', 'Horror']
+                
                 #Return all genres
                 print("\n-----------Please choose a preferred Genre from below:-----------")
-                for genre in genres:
-                    print("\n ", genre)
+                for i in range(len(GENRES)):
+                    print("\n%d. %s"%(i + 1, GENRES[i]))
                 while True:
-                    genre_chosen = input("\n Please enter your chosen Genre: ")
-                    if genre_chosen in genres:
-                        break
-                    else:
-                        print("\n Wrong genre, please try again")
+                    genre_idx = input("\nPlease enter your chosen Genre: ")
+                    try:
+                        genre_idx = int(genre_idx)
+                        if genre_idx in range(1, len(GENRES) + 1):
+                            break
+                        else:
+                            print("\nWrong genre, please try again")
+                    except:
+                        print("\nPlease enter a number from available genres above")
+                genre_chosen = GENRES[genre_idx - 1]
 
                 #Return all movies
-                movie_dic = {'Romance':['Me Before You', 'Titanic', 'About Time'], 'Comedy':['The Dictator', 'The Gold Rush', 'Four Weddings and a Funeral'], 'Horror':['Silent Hill', 'Saw', 'The Shining']}
-                movies = movie_dic.get(genre_chosen)
+                movies = MOVIE_DIC.get(genre_chosen)
                 print("\n-----------Please choose a preferred Movie from below:-----------")
-                for movie in movies:
-                    print('\n', movie)
+                for i in range(len(movies)):
+                    print("\n%d. %s"%(i + 1, movies[i]))
                 while True:
-                    movie_chosen = input("\n Please enter your chosen Movie: ")
-                    if movie_chosen in movies:
-                        break
-                    else:
-                        print("\n Wrong movie, please try again")
+                    movie_idx = input("\nPlease enter your chosen Movie: ")
+                    try:
+                        movie_idx = int(movie_idx)
+                        if movie_idx in range(1, len(movies) + 1):
+                            break
+                        else:
+                            print("\nWrong movie, please try again")
+                    except:
+                        print("\nPlease enter a number from available movies above")
+                movie_chosen = movies[movie_idx - 1]
 
                 #Return all available slots (isFull = 0)
 
@@ -106,19 +161,23 @@ def booking():
                 slots_available = cur.fetchall()
                 times = []
                 print("\n-----------Please choose a preferred time slot from below:-----------")
-                for slot_available in slots_available:
-                    times.append(slot_available[2])
-                    print('\n', slot_available[2])
+                for i in range(len(slots_available)):
+                    times.append(slots_available[i][2])
+                    print("\n%d. %s"%(i + 1, slots_available[i][2]))
                 while True:
-                    time_chosen = input("\n Please enter your chosen time slot: ")
-                    if time_chosen in times:
-                        break
-                    else:
-                        print("\n Wrong time slot, please try again")
+                    time_idx = input("\nPlease enter your chosen Slot: ")
+                    try:
+                        time_idx = int(time_idx)
+                        if time_idx in range(1, len(times) + 1):
+                            break
+                        else:
+                            print("\nWrong slot, please try again")
+                    except:
+                        print("\nPlease enter a number from available slots above")
+                time_chosen = times[time_idx - 1]
 
                 #Return all seats available
-                seats = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-                capacity = len(seats)
+                seats = TOTAL_SEATS
                 cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND time = ?', (movie_id, time_chosen))
                 slot_id = cur.fetchone()[0]
                 cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
@@ -131,36 +190,39 @@ def booking():
                 for seat in seats:
                     print('\n', seat)
                 while True:
-                    seat_chosen = input("\n Please enter your chosen Seat: ")
+                    seat_chosen = input("\nPlease enter your chosen Seat: ")
                     try:
                         seat_chosen = int(seat_chosen)
                         if seat_chosen in seats:
                             break
                         else:
-                            print("\n Wrong seat, please try again")
+                            print("\nWrong seat, please try again")
                     except:
-                        print("\n Please enter a number from available seats above")
+                        print("\nPlease enter a number from available seats above")
 
                 # Insert a new ticket and print detailed information
                 # cur.execute('SELECT id FROM User WHERE email = ?', (email_input,))
                 # user_id = cur.fetchone()[0]
-                cur.execute("INSERT INTO Ticket (price, seat, slot_id, user_id) values (?, ?, ?, ?)", (price, seat_chosen, slot_id, user_id))
+                cur.execute("INSERT INTO Ticket (price, seat, slot_id, user_id) values (?, ?, ?, ?)", (PRICE, seat_chosen, slot_id, user_id))
                 conn.commit()
+
+                send_mail(email_input, movie_chosen, time_chosen, seat_chosen)
                 print("\n-----------Below is the detailed information of the ticket you purchased:-----------")
-                print("\n Movie: ", movie_chosen)
-                print("\n Slot: ", time_chosen)
-                print("\n Seat: ", seat_chosen)
-                print("\n Price: $", price)
+                print("\nMovie: ", movie_chosen)
+                print("\nSlot: ", time_chosen)
+                print("\nSeat: ", seat_chosen)
+                print("\nPrice: $", PRICE)
 
                 #Check if a slot is full
                 cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
                 ordered_tickets = cur.fetchall()
-                print(len(ordered_tickets))
-                if len(ordered_tickets) == capacity:
+                #print(len(ordered_tickets))
+                if len(ordered_tickets) == CAPACITY:
                     cur.execute('UPDATE Slot set isFull = 1 where id = ?', (slot_id,))
                     conn.commit()
             
             elif choice == 2:
+                
                 #View tickets bought
                 tickets_purchased = cur.execute('SELECT * FROM Ticket WHERE user_id = ?', (user_id,)).fetchall()
             
@@ -175,11 +237,11 @@ def booking():
                     cur.execute('SELECT name FROM Movie WHERE id = ?', (movie_id_purchased,))
                     movie_purchased = cur.fetchone()[0]
 
-                    print("\n -----Ticket %d-----"%(i + 1))
-                    print("\n Movie: ", movie_purchased)
-                    print("\n Slot: ", time_purchased)
-                    print("\n Seat: ", tickets_purchased[i][2])
-                    print("\n Price: $14.99")
+                    print("\n-----Ticket %d-----"%(i + 1))
+                    print("\nMovie: ", movie_purchased)
+                    print("\nSlot: ", time_purchased)
+                    print("\nSeat: ", tickets_purchased[i][2])
+                    print("\nPrice: $", PRICE)
         
             else:
                 is_logged_in = False
@@ -195,8 +257,8 @@ if __name__ == '__main__':
     try:
         booking()
     except Exception as e:
-        print ('\n Your session has timed out, please try again!')
+        print('\nYour session has timed out, please try again!')
 
 
-    # close database upon time out
+    # close database upon timeout
     conn.close()
