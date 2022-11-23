@@ -21,19 +21,7 @@ EMAIL_SUBJECT = 'Congratulations! You have successfully purchased a ticket from 
 
 
 def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
-    mail_content = '''
-    Dear Customer, 
-    
-    Congratulations on successfully purchasing a ticket from LalaLand Movie Booking System! 
-    Below is the detailed information of your ticket:
-        
-    Movie: %s
-    Slot: %s
-    Seat: %s
-    Price: $%.2f
-
-    Thank You,
-    Lalaland Movie Booking Team
+    mail_content = '''Dear Customer,\n\nCongratulations on successfully purchasing a ticket from LalaLand Movie Booking System! Below is the detailed information of your ticket:\n\nMovie: %s\nSlot: %s\nSeat: %s\nPrice: $%.2f\n\nThank You,\nLalaland Movie Booking Team
     '''%(movie_chosen, time_chosen, seat_chosen, PRICE)
 
     #Setup the MIME
@@ -54,7 +42,7 @@ def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     session.quit()
 
 #session time limit 5 minutes
-@timeout_decorator.timeout(60)
+@timeout_decorator.timeout()
 def booking():
 
     is_logged_in = False
@@ -167,10 +155,10 @@ def booking():
                 #Return all available slots (isFull = 0)
 
                 #get movie id
-                cur.execute('SELECT id FROM Movie WHERE name = ? ', (movie_chosen, ))
+                cur.execute('SELECT id FROM Movie WHERE name = ? ', (movie_chosen,))
                 movie_id = cur.fetchone()[0]
                 #get available slots
-                cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND isFull = 0', (movie_id, ))
+                cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND isFull = 0', (movie_id,))
                 slots_available = cur.fetchall()
                 times = []
                 print("\n-----------Please choose a preferred time slot from below:-----------")
@@ -213,26 +201,27 @@ def booking():
                     except:
                         print("\nPlease enter a number from available seats above")
 
-                # Insert a new ticket and print detailed information
-                # cur.execute('SELECT id FROM User WHERE email = ?', (email_input,))
-                # user_id = cur.fetchone()[0]
-                cur.execute("INSERT INTO Ticket (price, seat, slot_id, user_id) values (?, ?, ?, ?)", (PRICE, seat_chosen, slot_id, user_id))
-                conn.commit()
-
-                send_mail(email_input, movie_chosen, time_chosen, seat_chosen)
-                print("\n-----------Below is the detailed information of the ticket you purchased:-----------")
-                print("\nMovie: ", movie_chosen)
-                print("\nSlot: ", time_chosen)
-                print("\nSeat: ", seat_chosen)
-                print("\nPrice: $", PRICE)
-
-                #Check if a slot is full
-                cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
-                ordered_tickets = cur.fetchall()
-                #print(len(ordered_tickets))
-                if len(ordered_tickets) == CAPACITY:
-                    cur.execute('UPDATE Slot set isFull = 1 where id = ?', (slot_id,))
+                confirmation = input("\n-----------Please enter y to confirm purchase. Otherwise, please press any other key.-----------")
+                if confirmation == 'y' or confirmation == 'Y':
+                    # Insert a new ticket and print detailed information
+                    cur.execute("INSERT INTO Ticket (price, seat, slot_id, user_id) values (?, ?, ?, ?)", (PRICE, seat_chosen, slot_id, user_id))
                     conn.commit()
+
+                    send_mail(email_input, movie_chosen, time_chosen, seat_chosen)
+                    print("\n-----------Order confirmed. A confirmation email has been sent to your email account %s.-----------"%(email_input))
+                    print("\n-----------Below is the detailed information of the ticket you purchased:-----------")
+                    print("\nMovie: ", movie_chosen)
+                    print("\nSlot: ", time_chosen)
+                    print("\nSeat: ", seat_chosen)
+                    print("\nPrice: $", PRICE)
+
+                    #Check if a slot is full
+                    cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
+                    ordered_tickets = cur.fetchall()
+                    #print(len(ordered_tickets))
+                    if len(ordered_tickets) == CAPACITY:
+                        cur.execute('UPDATE Slot set isFull = 1 where id = ?', (slot_id,))
+                        conn.commit()
             
             elif choice == 2:
                 
