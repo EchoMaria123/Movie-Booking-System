@@ -1,6 +1,7 @@
 import sqlite3
 import timeout_decorator
 import smtplib
+import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -51,8 +52,8 @@ def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     session.sendmail(SENDER_ADDRESS, receiver_address, text)
     session.quit()
 
-
-@timeout_decorator.timeout(60*5)
+#session time limit 5 minutes
+@timeout_decorator.timeout(60, use_signals = False)
 def booking():
 
     is_logged_in = False
@@ -69,7 +70,16 @@ def booking():
 
         while is_logged_in == False:
 
-            email_input = input("\nPlease enter your email address: ")
+            while True:
+                #whether it is a valid email
+                email_input = input("\nPlease enter your email address: ")
+                response = requests.get("https://isitarealemail.com/api/email/validate", params = {'email': email_input})
+                status = response.json()['status']
+
+                if status == 'valid':
+                    break
+                else:
+                    print('\nThe email you input does not exist or is unknown, please enter again!')
 
             cur.execute('SELECT * FROM User WHERE email = ? ', (email_input, ))
             user_found = cur.fetchone()
@@ -91,7 +101,7 @@ def booking():
                     print("\n-----------Logged in successfully!-----------")
                 #Otherwise
                 else:
-                    print("Wrong password! Please try again!")
+                    print("\nWrong password! Please try again!")
 
         while is_logged_in == True:
             
