@@ -4,6 +4,7 @@ import smtplib
 import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import time
 
 
 #global variables
@@ -53,7 +54,7 @@ def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     session.quit()
 
 #session time limit 5 minutes
-@timeout_decorator.timeout(60, use_signals = False)
+@timeout_decorator.timeout(60)
 def booking():
 
     is_logged_in = False
@@ -81,7 +82,7 @@ def booking():
                 else:
                     print('\nThe email you input does not exist or is unknown, please enter again!')
 
-            cur.execute('SELECT * FROM User WHERE email = ? ', (email_input, ))
+            cur.execute('SELECT * FROM User WHERE email = ? ', (email_input,))
             user_found = cur.fetchone()
 
             #If there's no such user, we just create a new one
@@ -114,13 +115,15 @@ def booking():
             print("\n2. VIEW PURCHASED TICKETS")
             print("\n3. LOG OUT")
             while True:
+                choice = input("\nYou choose: ")
                 try:
-                    choice = int(input("\n"))
+                    choice = int(choice)
                     if choice in range(1, 4):
                         break
                     else:
                         print("\nWrong choice, please try again")
-                except:
+                except Exception as e:
+                    # print(e)
                     print("\nPlease enter a number from available choices above")
 
             if choice == 1:
@@ -253,7 +256,7 @@ def booking():
                     print("\nSeat: ", tickets_purchased[i][2])
                     print("\nPrice: $", PRICE)
         
-            else:
+            elif choice == 3:
                 is_logged_in = False
             
             conn.commit()
