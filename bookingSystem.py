@@ -21,7 +21,7 @@ EMAIL_SUBJECT = 'Congratulations! You have successfully purchased a ticket from 
 
 
 def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
-    mail_content = '''Dear Customer,\n\nCongratulations on successfully purchasing a ticket from LalaLand Movie Booking System! Below is the detailed information of your ticket:\n\nMovie: %s\nSlot: %s\nSeat: %s\nPrice: $%.2f\n\nThank You,\nLalaland Movie Booking Team
+    mail_content = '''Dear Customer,\n\nCongratulations on successfully purchasing a ticket from LaLaLand Movie Booking System! Below is the detailed information of your ticket:\n\nMovie: %s\nSlot: %s\nSeat: %s\nPrice: $%.2f\n\nThank You,\nLaLaLand Movie Booking Team
     '''%(movie_chosen, time_chosen, seat_chosen, PRICE)
 
     #Setup the MIME
