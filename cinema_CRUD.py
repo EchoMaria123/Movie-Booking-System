@@ -50,34 +50,7 @@ cur.execute("INSERT INTO User (email, password) values ('kwin1994@gmail.com', 'k
 cur.execute("INSERT INTO User (email, password) values ('katto1996@gmail.com', 'katto1996')")
 cur.execute("INSERT INTO User (email, password) values ('messi1987@gmail.com', 'messi1987')")
 
-#specify the values as question marks (?, ?)
-# to indicate that the actual values are passed in 
-# #as a tuple ( 'My Way', 15 ) as the second parameter to the execute() call
-# cur.execute('INSERT INTO Tracks (title, plays) VALUES (?, ?)',
-#     ('Thunderstruck', 20))
-# cur.execute('INSERT INTO Tracks (title, plays) VALUES (?, ?)',
-#     ('My Way', 15))
 
-
-# # The INSERT statement implicitly opens a transaction,
-# # which needs to be committed before changes are saved in the database 
-# #call conn.commit() on the connection object to commit the transaction
-# conn.commit()
-
-
-# print('Tracks:') 
-# cur.execute('SELECT title, plays FROM Tracks') # retrieve the rows from the table
-
-# #the cursor is something we can loop through in a for statement
-# # For efficiency, the cursor does not read all of the data from the database 
-# #when we execute the SELECT statement. Instead, the data is read on demand 
-# #as we loop through the rows in the for statement.
-# for row in cur: 
-#      print(row)
-
-# #After the DELETE is performed,
-# # call commit() to force the data to be removed from the database
-# cur.execute('DELETE FROM Tracks WHERE plays < 100')
 conn.commit()
 
 cur.close()
