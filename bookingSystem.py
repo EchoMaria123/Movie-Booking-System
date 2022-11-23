@@ -1,10 +1,10 @@
 import sqlite3
+import time
 import timeout_decorator
 import smtplib
 import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import time
 
 
 #global variables
@@ -42,7 +42,7 @@ def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     session.quit()
 
 #session time limit 5 minutes
-@timeout_decorator.timeout()
+@timeout_decorator.timeout(60)
 def booking():
 
     is_logged_in = False
