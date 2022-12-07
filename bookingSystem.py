@@ -14,7 +14,7 @@ MOVIE_DIC = {'Romance':['Me Before You', 'Titanic', 'About Time'], 'Comedy':['Th
 TOTAL_SEATS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 CAPACITY = len(TOTAL_SEATS)
 
-#The mail addresses and password
+#The sender mail addresses and password
 SENDER_ADDRESS = 'lalalandmoviebooking@gmail.com'
 SENDER_PASSWORD = 'qcxzmejemoragvav'
 EMAIL_SUBJECT = 'Congratulations! You have successfully purchased a ticket from LALALAND!'
@@ -41,8 +41,9 @@ def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     session.sendmail(SENDER_ADDRESS, receiver_address, text)
     session.quit()
 
-#session time limit 5 minutes
-@timeout_decorator.timeout(60)
+#session time limit 10 minutes
+#add time out session to ensure database is closed eventually
+@timeout_decorator.timeout(600)
 def booking():
 
     is_logged_in = False
@@ -160,6 +161,7 @@ def booking():
                 #get available slots
                 cur.execute('SELECT * FROM Slot WHERE movie_id = ? AND isFull = 0', (movie_id,))
                 slots_available = cur.fetchall()
+                #get available times 
                 times = []
                 print("\n-----------Please choose a preferred time slot from below:-----------")
                 for i in range(len(slots_available)):
@@ -201,12 +203,13 @@ def booking():
                     except:
                         print("\nPlease enter a number from available seats above")
 
-                confirmation = input("\n-----------Please enter y to confirm purchase. Otherwise, please press any other key.-----------")
+                confirmation = input("\n-----------Please enter y to confirm purchase. Otherwise, please press any other key.-----------\n")
                 if confirmation == 'y' or confirmation == 'Y':
                     # Insert a new ticket and print detailed information
                     cur.execute("INSERT INTO Ticket (price, seat, slot_id, user_id) values (?, ?, ?, ?)", (PRICE, seat_chosen, slot_id, user_id))
                     conn.commit()
 
+                    #send confirmation email 
                     send_mail(email_input, movie_chosen, time_chosen, seat_chosen)
                     print("\n-----------Order confirmed. A confirmation email has been sent to your email account %s.-----------"%(email_input))
                     print("\n-----------Below is the detailed information of the ticket you purchased:-----------")
@@ -218,7 +221,7 @@ def booking():
                     #Check if a slot is full
                     cur.execute('SELECT * FROM Ticket WHERE slot_id = ?', (slot_id,))
                     ordered_tickets = cur.fetchall()
-                    #print(len(ordered_tickets))
+                    #Update slot isFull to 1 if the slot is full
                     if len(ordered_tickets) == CAPACITY:
                         cur.execute('UPDATE Slot set isFull = 1 where id = ?', (slot_id,))
                         conn.commit()
@@ -239,6 +242,7 @@ def booking():
                     cur.execute('SELECT name FROM Movie WHERE id = ?', (movie_id_purchased,))
                     movie_purchased = cur.fetchone()[0]
 
+                    #print purchased tickets
                     print("\n-----Ticket %d-----"%(i + 1))
                     print("\nMovie: ", movie_purchased)
                     print("\nSlot: ", time_purchased)
@@ -246,6 +250,7 @@ def booking():
                     print("\nPrice: $", PRICE)
         
             elif choice == 3:
+                #log out
                 is_logged_in = False
             
             conn.commit()
