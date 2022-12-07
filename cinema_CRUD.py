@@ -46,9 +46,6 @@ for movie_id in range(1,10):
 # Ticket Insert on purchase
 
 # User Insert on sign up
-cur.execute("INSERT INTO User (email, password) values ('kwin1994@gmail.com', 'kwin1994')")
-cur.execute("INSERT INTO User (email, password) values ('katto1996@gmail.com', 'katto1996')")
-cur.execute("INSERT INTO User (email, password) values ('messi1987@gmail.com', 'messi1987')")
 
 
 conn.commit()
