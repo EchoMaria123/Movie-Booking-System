@@ -37,3 +37,7 @@ After the user has signed in, there are 3 options that the user can choose from:
   ```
   to run the project
 - also do not forget to download all the packages if needed :)
+
+## Acknowledgement
+
+The functionality to send email to our user refers to _[this tutorial](https://www.tutorialspoint.com/send-mail-from-your-gmail-account-using-python)_, the rest is our original work.

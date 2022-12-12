@@ -24,7 +24,7 @@ EMAIL_SUBJECT = 'Congratulations! You have successfully purchased a ticket from 
 # for validating an Email
 regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
-# Define a function for
+# Define a function 
 # for validating an Email
 def check(email):
 
@@ -79,8 +79,13 @@ def booking():
             while True:
                 #whether it is a valid email
                 email_input = input("\nPlease enter your email address: ")
+
+                #old way for validating email: use api
                 # response = requests.get("https://isitarealemail.com/api/email/validate", params = {'email': email_input})
                 # status = response.json()['status']
+
+                #revised way: use regular expression
+                #limitation: can only be used to check email format, can not check for existence of email
                 is_valid_email = check(email_input)
 
                 if is_valid_email == True:
