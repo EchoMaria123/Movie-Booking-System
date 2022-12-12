@@ -37,3 +37,4 @@ After the user has signed in, there are 3 options that the user can choose from:
     python bookingSystem.py 
     ```
     to run the project
+  * also don't forget to download all the packages if needed :)

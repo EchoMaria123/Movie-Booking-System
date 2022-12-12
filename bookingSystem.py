@@ -1,3 +1,4 @@
+import re
 import sqlite3
 import time
 import timeout_decorator
@@ -19,6 +20,21 @@ SENDER_ADDRESS = 'lalalandmoviebooking@gmail.com'
 SENDER_PASSWORD = 'qcxzmejemoragvav'
 EMAIL_SUBJECT = 'Congratulations! You have successfully purchased a ticket from LALALAND!'
 
+# Make a regular expression
+# for validating an Email
+regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
+# Define a function for
+# for validating an Email
+def check(email):
+
+	# pass the regular expression
+	# and the string into the fullmatch() method
+	if (re.fullmatch(regex, email)):
+		return True
+	else:
+		return False
+
 
 def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     mail_content = '''Dear Customer,\n\nCongratulations on successfully purchasing a ticket from LaLaLand Movie Booking System! Below is the detailed information of your ticket:\n\nMovie: %s\nSlot: %s\nSeat: %s\nPrice: $%.2f\n\nThank You,\nLaLaLand Movie Booking Team
@@ -34,12 +50,12 @@ def send_mail(receiver_address, movie_chosen, time_chosen, seat_chosen):
     message.attach(MIMEText(mail_content, 'plain'))
 
     #Create SMTP session for sending the mail
-    session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
+    session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port, aka connecting to the server
     session.starttls() #enable security
-    session.login(SENDER_ADDRESS, SENDER_PASSWORD) #login with mail_id and password
-    text = message.as_string()
+    session.login(SENDER_ADDRESS, SENDER_PASSWORD) #login with mail_id and password to the server
+    text = message.as_string() #the MIMEMultipart object has to be converted to a string to be sent
     session.sendmail(SENDER_ADDRESS, receiver_address, text)
-    session.quit()
+    session.quit() #log out of the server
 
 #session time limit 10 minutes
 #add time out session to ensure database is closed eventually
@@ -63,10 +79,11 @@ def booking():
             while True:
                 #whether it is a valid email
                 email_input = input("\nPlease enter your email address: ")
-                response = requests.get("https://isitarealemail.com/api/email/validate", params = {'email': email_input})
-                status = response.json()['status']
+                # response = requests.get("https://isitarealemail.com/api/email/validate", params = {'email': email_input})
+                # status = response.json()['status']
+                is_valid_email = check(email_input)
 
-                if status == 'valid':
+                if is_valid_email == True:
                     break
                 else:
                     print('\nThe email you input does not exist or is unknown, please enter again!')
